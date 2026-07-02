@@ -645,9 +645,26 @@ function render(){
     if(sec.section==="nsfw"&&!nsfw)return;
     const sc=sec.section==="character"?"#818cf8":sec.section==="nsfw"?"#f97316":sec.section==="ip"?"#fbbf24":"#6ee7b7";
     const so=sec.section==="scene"?"→ メイン":sec.section==="ip"?"名前は{{{{ }}}}強調で出力":"→ キャラ";
-    const sh=ha("div",{class:"sec-head",style:{color:sc,borderTop:sec.section==="scene"?"none":undefined,marginTop:sec.section==="scene"?"0":undefined}});
-    sh.innerHTML=sec.label+'<span>'+so+'</span>';
-    catDiv.appendChild(sh);
+    const secSel=sec.cats.reduce((a,c)=>a+c.tags.filter(([,t])=>sel[t]).length,0);
+
+    // 版権キャラは件数が多いので、section全体を折りたたみ式にする
+    if(sec.section==="ip"){
+      const sk="sec-"+sec.section;
+      const isSO=!!openCats[sk];
+      const sh=ha("button",{class:"cat-btn"+(isSO?" open":""),style:{marginTop:"10px",marginBottom:isSO?"0":"8px",borderColor:isSO?sc:"#2a2a45",background:isSO?"rgba(251,191,36,0.08)":"#1a1a2e",color:sc,fontWeight:"700"},onClick:()=>{openCats[sk]=!isSO;render()}});
+      sh.innerHTML=sec.label+' <span style="font-size:11px;font-weight:400;color:#8888a8;margin-left:8px">'+so+'</span>';
+      const srt=h("span");srt.style.cssText="display:flex;align-items:center;gap:6px";
+      if(secSel>0)srt.innerHTML='<span style="background:#fbbf24;color:#000;border-radius:10px;padding:1px 7px;font-size:11px;font-weight:600">'+secSel+'</span>';
+      srt.appendChild(ha("span",{style:{fontSize:"10px",color:"#8888a8",transform:isSO?"rotate(180deg)":"none",transition:"transform .12s",display:"inline-block"}},"▼"));
+      sh.appendChild(srt);
+      catDiv.appendChild(sh);
+      if(!isSO)return;
+    }else{
+      const sh=ha("div",{class:"sec-head",style:{color:sc,borderTop:sec.section==="scene"?"none":undefined,marginTop:sec.section==="scene"?"0":undefined}});
+      sh.innerHTML=sec.label+'<span>'+so+'</span>';
+      catDiv.appendChild(sh);
+    }
+
     sec.cats.forEach(c=>{
       const isO=openCats[c.n];
       const cSel=c.tags.filter(([,t])=>sel[t]).length;
