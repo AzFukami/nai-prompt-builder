@@ -10,7 +10,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{--bg:#0f0f17;--card:#1a1a2e;--tag:#252540;--input:#16162a;--text:#e8e8f0;--muted:#8888a8;--border:#2a2a45;--accent:#6366f1;--accent2:#4f46e5;--green:#6ee7b7;--purple:#818cf8;--red:#f87171;--orange:#f97316}
-body{font-family:-apple-system,'Hiragino Sans','Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:8px;max-width:820px;margin:0 auto}
+body{font-family:-apple-system,'Hiragino Sans','Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:8px;padding-bottom:calc(72px + env(safe-area-inset-bottom));max-width:820px;margin:0 auto}
 input,textarea,button{font-family:inherit}
 input,textarea{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--input);color:var(--text);font-size:14px;outline:none}
 textarea{resize:vertical}
@@ -37,6 +37,10 @@ textarea{resize:vertical}
 .pill.on{font-weight:600}
 .ctrl-btn{padding:4px 10px;border-radius:6px;border:none;font-size:12px;cursor:pointer;min-height:28px}
 details summary{cursor:pointer}
+.fbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:820px;background:rgba(15,15,23,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--border);padding:8px 12px calc(8px + env(safe-area-inset-bottom));display:flex;gap:8px;align-items:center;z-index:50}
+.chip{display:inline-flex;align-items:center;gap:4px;background:var(--tag);color:#d0d0e0;border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer;min-height:28px}
+.chip:active{background:#dc2626;color:#fff}
+.chip b{color:#c7d2fe;font-weight:600;font-family:monospace;font-size:11px}
 </style>
 </head>
 <body>
@@ -66,7 +70,9 @@ const SECS=[
 ["斜め","three quarter view"],["俯瞰","bird's-eye view"],
 ["ダッチアングル","dutch angle"],["被写界深度","depth of field"],
 ["映画的","cinematic angle"],["ワイドショット","wide shot"],
-["セルフィー","selfie"],["覗き込み","peeking"]]},
+["セルフィー","selfie"],["覗き込み","peeking"],
+["POV","pov"],["魚眼","fisheye"],["シルエット","silhouette"],
+["対称構図","symmetry"],["顔外フレーム","head out of frame"]]},
 {n:"背景（自然）",i:"🏞️",ch:false,tags:[
 ["屋外","outdoors"],["空","sky"],["青空","blue sky"],
 ["夜空","night sky"],["星空","starry sky"],["天の川","milky way"],
@@ -77,7 +83,9 @@ const SECS=[
 ["桜","cherry blossoms"],["紅葉","autumn leaves"],
 ["山","mountain"],["砂漠","desert"],["雪原","snowfield"],
 ["洞窟","cave"],["庭","garden"],["公園","park"],
-["風景","scenery"],["大自然","nature"]]},
+["風景","scenery"],["大自然","nature"],
+["水中","underwater"],["崖","cliff"],["竹林","bamboo forest"],
+["島","island"],["宇宙","space"],["惑星","planet"],["銀河","galaxy"]]},
 {n:"背景（都市・屋内）",i:"🏙️",ch:false,tags:[
 ["屋内","indoors"],["街","cityscape"],["路地","alley"],
 ["教室","classroom"],["廊下","hallway"],["屋上","rooftop"],
@@ -87,7 +95,12 @@ const SECS=[
 ["駅","train station"],["神社","shrine"],["教会","church"],
 ["城","castle"],["宮殿","palace"],["廃墟","ruins"],
 ["工場","factory"],["研究所","laboratory"],["舞台","stage"],
-["プール","pool"],["温泉","onsen"]]},
+["プール","pool"],["温泉","onsen"],
+["学校","school"],["保健室","infirmary"],["体育館","gymnasium"],
+["電車内","train interior"],["コンビニ","convenience store"],
+["遊園地","amusement park"],["観覧車","ferris wheel"],
+["ゲーセン","arcade"],["病院","hospital"],["ホテル","hotel room"],
+["和室","tatami"],["水族館","aquarium"]]},
 {n:"背景（シンプル）",i:"🎨",ch:false,tags:[
 ["シンプル","simple background"],["白","white background"],
 ["黒","black background"],["灰","grey background"],
@@ -100,7 +113,9 @@ const SECS=[
 ["強風","strong wind"],["嵐","storm"],["雷","lightning"],
 ["虹","rainbow"],["オーロラ","aurora"],["流星","shooting star"],
 ["花びら","petals"],["桜吹雪","cherry blossom petals"],
-["落ち葉","falling leaves"],["泡","bubbles"],["蛍","fireflies"]]},
+["落ち葉","falling leaves"],["泡","bubbles"],["蛍","fireflies"],
+["吹雪","blizzard"],["曇り空","cloudy sky"],["水たまり","puddle"],
+["朝もや","morning mist"]]},
 {n:"照明・エフェクト",i:"🌟",ch:false,tags:[
 ["昼","day"],["夜","night"],["黄昏","dusk"],
 ["逆光","backlighting"],["リムライト","rim lighting"],
@@ -112,7 +127,10 @@ const SECS=[
 ["グロー","glow"],["スパークル","sparkle"],
 ["魔法陣","magic circle"],["オーラ","aura"],
 ["炎","fire"],["氷","ice"],["電撃","electricity"],
-["煙","smoke"],["紙吹雪","confetti"]]},
+["煙","smoke"],["紙吹雪","confetti"],
+["キャンドル","candlelight"],["スポットライト","spotlight"],
+["色収差","chromatic aberration"],["フィルム粒子","film grain"],
+["ビネット","vignetting"],["夕暮れ空","gradient sky"]]},
 {n:"画風・スタイル",i:"🖌️",ch:false,tags:[
 ["水彩風","watercolor (medium)"],["油絵風","oil painting"],
 ["厚塗り","impasto"],["線画","lineart"],
@@ -123,7 +141,31 @@ const SECS=[
 ["半リアル","semi-realistic"],["ファンタジー","fantasy"],
 ["サイバーパンク","cyberpunk"],["スチームパンク","steampunk"],
 ["レトロ","retro"],["浮世絵風","ukiyo-e"],
-["ピクセルアート","pixel art"],["ノワール","film noir"]]},
+["ピクセルアート","pixel art"],["ノワール","film noir"],
+["90年代アニメ","1990s (style)"],["レトロアニメ","retro artstyle"],
+["スケッチ","sketch"],["ポップアート","pop art"],
+["ミニマル","minimalism"],["グリッチ","glitch"],
+["ダークファンタジー","dark fantasy"],["ゴシック","gothic"],
+["アールヌーボー","art nouveau"],["ステンドグラス","stained glass"]]},
+,
+{n:"季節・イベント",i:"🎆",ch:false,tags:[
+["花火","fireworks"],["夏祭り","summer festival"],["屋台","food stall"],
+["クリスマス","christmas"],["ツリー","christmas tree"],
+["イルミネーション","christmas lights"],["ハロウィン","halloween"],
+["ジャックオランタン","jack-o'-lantern"],["バレンタイン","valentine"],
+["正月","new year"],["初詣","hatsumoude"],["誕生日","birthday"],
+["パーティー","party"],["花見","hanami"],["卒業式","graduation"]]},
+{n:"動物・生き物",i:"🐠",ch:false,tags:[
+["猫","cat"],["犬","dog"],["鳥","bird"],["蝶","butterfly"],
+["魚","fish"],["熱帯魚","tropical fish"],["クラゲ","jellyfish"],
+["イルカ","dolphin"],["クジラ","whale"],["ペンギン","penguin"],
+["金魚","goldfish"],["錦鯉","koi"],["兎","rabbit"],["狐","fox"],
+["狼","wolf"],["馬","horse"],["ドラゴン","dragon"]]},
+{n:"乗り物",i:"🚗",ch:false,tags:[
+["車","car"],["スポーツカー","sports car"],["バイク","motorcycle"],
+["自転車","bicycle"],["電車","train"],["船","boat"],
+["ヨット","sailboat"],["飛行機","aircraft"],["気球","hot air balloon"],
+["宇宙船","spacecraft"]]},
 ]},
 {section:"character",label:"👤 キャラクター外見",cats:[
 {n:"髪色",i:"🎨",ch:true,tags:[
@@ -134,7 +176,9 @@ const SECS=[
 ["水色髪","light blue hair"],["プラチナ金","platinum blonde hair"],
 ["グラデ","gradient hair"],["マルチカラー","multicolored hair"],
 ["ツートーン","two-tone hair"],["メッシュ","streaked hair"],
-["インナーカラー","colored inner hair"]]},
+["インナーカラー","colored inner hair"],
+["紺髪","dark blue hair"],["明るい茶髪","light brown hair"],
+["毛先カラー","colored tips"],["虹色髪","rainbow hair"]]},
 {n:"髪型",i:"💇",ch:true,tags:[
 ["超ロング","very long hair"],["ロング","long hair"],
 ["ミディアム","medium hair"],["ショート","short hair"],
@@ -151,7 +195,10 @@ const SECS=[
 ["片目隠し","hair over one eye"],["姫カット","hime cut"],
 ["アホ毛","ahoge"],["もみあげ","sidelocks"],
 ["ぼさぼさ","messy hair"],["濡れ髪","wet hair"],
-["風なびき","floating hair"]]},
+["風なびき","floating hair"],["外ハネ","flipped hair"],
+["ローポニー","low ponytail"],["ショートポニー","short ponytail"],
+["編み込み","french braid"],["冠編み","crown braid"],
+["ピン留め前髪","bangs pinned back"],["ヘアインテーク","hair intakes"]]},
 {n:"髪飾り",i:"🎀",ch:true,tags:[
 ["髪飾り","hair ornament"],["髪リボン","hair ribbon"],
 ["ヘアクリップ","hair clip"],["ヘアピン","hairpin"],
@@ -168,7 +215,9 @@ const SECS=[
 ["猫目","slit pupils"],["つり目","tsurime"],["たれ目","tareme"],
 ["詳細瞳","detailed eyes"],["きらきら瞳","sparkling eyes"],
 ["ハート瞳孔","heart-shaped pupils"],["星型瞳孔","star-shaped pupils"],
-["アイシャドウ","eyeshadow"],["長まつ毛","long eyelashes"]]},
+["アイシャドウ","eyeshadow"],["長まつ毛","long eyelashes"],
+["グラデ瞳","gradient eyes"],["リング瞳","ringed eyes"],
+["うつろな瞳","empty eyes"]]},
 {n:"顔・口",i:"👄",ch:true,tags:[
 ["八重歯","fang"],["そばかす","freckles"],["ほくろ","mole"],
 ["目元ほくろ","mole under eye"],["赤面","blush"],
@@ -187,7 +236,10 @@ const SECS=[
 ["ジト目","half-closed eyes"],["片目閉じ","one eye closed"],
 ["キリッ","serious"],["誘惑的","seductive smile"],
 ["得意顔","smug"],["恥ずかしい","flustered"],["呆然","dazed"],
-["恍惚","parted lips"]]},
+["恍惚","parted lips"],
+["眠そう","sleepy"],["退屈","bored"],["むくれ顔","puffed cheeks"],
+["悪い笑み","evil smile"],["うれし涙","happy tears"],
+["緊張","nervous"],["歯食いしばり","clenched teeth"]]},
 {n:"体型・肌",i:"✋",ch:true,tags:[
 ["スレンダー","slim"],["小柄","petite"],
 ["長身女性","tall female"],["筋肉質","muscular"],
@@ -198,7 +250,9 @@ const SECS=[
 ["腹筋","abs"],["鎖骨","collarbone"],
 ["へそ出し","navel"],["色白","pale skin"],
 ["褐色肌","dark skin"],["日焼け","tan"],
-["日焼け跡","tanlines"],["傷跡","scar"],["タトゥー","tattoo"]]},
+["日焼け跡","tanlines"],["傷跡","scar"],["タトゥー","tattoo"],
+["グラマー","curvy"],["引き締まり","toned"],["ぽっちゃり","plump"],
+["光る肌","shiny skin"]]},
 {n:"ポーズ",i:"🤸",ch:true,tags:[
 ["立ち","standing"],["座り","sitting"],["椅子座り","sitting on chair"],
 ["正座","seiza"],["脚組み","crossed legs"],
@@ -210,13 +264,25 @@ const SECS=[
 ["髪かき上げ","hair flip"],["振り向き","looking back"],
 ["壁もたれ","leaning against wall"],["万歳","arms up"],
 ["両手後ろ","arms behind back"],["敬礼","salute"],
-["ダンス","dancing"],["歌う","singing"]]},
+["ダンス","dancing"],["歌う","singing"],
+["伸び","stretching"],["体育座り","hugging own legs"],
+["前傾","leaning forward"],["手を伸ばす","reaching towards viewer"],
+["手を振る","waving"],["ハートポーズ","heart hands"],
+["両手ピース","double v"],["猫ポーズ","paw pose"],
+["指差し","pointing"],["頭の後ろで手","arms behind head"],
+["祈り","praying"],["眠る","sleeping"],["あくび","yawning"],
+["指を口元に","finger to own mouth"]]},
 {n:"持ち物",i:"🗡️",ch:true,tags:[
 ["剣","holding sword"],["銃","holding gun"],["杖","holding staff"],
 ["花","holding flower"],["本","holding book"],["カップ","holding cup"],
 ["傘","holding umbrella"],["スマホ","holding phone"],
 ["ぬいぐるみ","holding stuffed toy"],["マイク","holding microphone"],
-["食事中","eating"],["読書中","reading"],["飲む","drinking"]]},
+["食事中","eating"],["読書中","reading"],["飲む","drinking"],
+["カメラ","holding camera"],["扇子","holding fan"],
+["食べ物","holding food"],["アイス","ice cream"],["ポッキー","pocky"],
+["おにぎり","onigiri"],["タピオカ","bubble tea"],
+["ゲーム機","handheld game console"],["買い物袋","shopping bag"],
+["ギター","guitar"],["バイオリン","violin"]]},
 {n:"トップス",i:"👚",ch:true,tags:[
 ["セーラー服","sailor collar"],["ブレザー","blazer"],["制服","school uniform"],
 ["Tシャツ","t-shirt"],["ブラウス","blouse"],["ワイシャツ","dress shirt"],
@@ -226,26 +292,44 @@ const SECS=[
 ["半袖","short sleeves"],["長袖","long sleeves"],
 ["肩出し","off shoulder"],["クロップ","crop top"],
 ["カーディガン","cardigan"],["コート","coat"],
-["ジャケット","jacket"],["エプロン","apron"]]},
+["ジャケット","jacket"],["エプロン","apron"],
+["デニムジャケット","denim jacket"],["レザージャケット","leather jacket"],
+["ベスト","vest"],["ニットベスト","sweater vest"],
+["パフスリーブ","puffy sleeves"],["袖分離","detached sleeves"],
+["広袖","wide sleeves"],["リブニット","ribbed sweater"],
+["肩出しニット","off-shoulder sweater"],["アロハ","hawaiian shirt"]]},
 {n:"ボトムス",i:"👖",ch:true,tags:[
 ["ミニスカ","miniskirt"],["プリーツ","pleated skirt"],
 ["ロングスカート","long skirt"],["チェック柄","plaid skirt"],
 ["ショーパン","short shorts"],["ジーンズ","jeans"],
 ["スキニー","skinny jeans"],["レギンス","leggings"],
-["サロペット","overalls"]]},
+["サロペット","overalls"],
+["タイトスカート","pencil skirt"],["ハイウエスト","high-waist skirt"],
+["カーゴパンツ","cargo pants"],["ジャージ","track pants"],
+["バイクショーツ","bike shorts"],["デニムショーツ","denim shorts"]]},
 {n:"ドレス・和服",i:"👗",ch:true,tags:[
 ["ドレス","dress"],["ワンピース","sundress"],["ウェディング","wedding dress"],
 ["イブニング","evening gown"],["フリルドレス","frilled dress"],
 ["ゴスロリ","gothic lolita"],["チャイナドレス","china dress"],
 ["着物","kimono"],["浴衣","yukata"],["袴","hakama"],
-["振袖","furisode"],["巫女","miko"],["ボディスーツ","bodysuit"]]},
+["振袖","furisode"],["巫女","miko"],["ボディスーツ","bodysuit"],
+["黒ドレス","black dress"],["白ドレス","white dress"],
+["赤ドレス","red dress"],["ホルターネック","halterneck"],
+["カクテルドレス","cocktail dress"],["ロングドレス","long dress"],
+["帯","obi"],["羽織","haori"]]},
 {n:"コスチューム",i:"🎪",ch:true,tags:[
 ["メイド","maid"],["ナース","nurse"],["軍服","military uniform"],
 ["スーツ","suit"],["白衣","lab coat"],["魔女","witch"],
 ["魔法少女","magical girl"],["バニー","playboy bunny"],
 ["サンタ","santa costume"],["チア","cheerleader"],
 ["アイドル","idol clothes"],["シスター","nun"],
-["体操服","gym uniform"],["アーマー","armor"]]},
+["体操服","gym uniform"],["アーマー","armor"],
+["ポリス","police"],["OL","office lady"],["ウェイトレス","waitress"],
+["執事","butler"],["騎士","knight"],["忍者","ninja"],["侍","samurai"],
+["海賊","pirate"],["ヴァンパイア","vampire"],["悪魔っ娘","demon girl"],
+["天使","angel"],["レースクイーン","race queen"],
+["CA","flight attendant"],["先生","teacher"],
+["きぐるみ","animal costume"],["王女","princess"],["女王","queen"]]},
 {n:"水着・下着",i:"👙",ch:true,tags:[
 ["水着","swimsuit"],["ビキニ","bikini"],["ワンピ水着","one-piece swimsuit"],
 ["スク水","school swimsuit"],["白ビキニ","white bikini"],
@@ -256,14 +340,24 @@ const SECS=[
 ["ピンクパンティ","pink panties"],["ストライプ","striped panties"],
 ["レース","lace panties"],["Tバック","thong"],
 ["ランジェリー","lingerie"],["コルセット","corset"],
-["ガーターベルト","garter belt"]]},
+["ガーターベルト","garter belt"],["フリルビキニ","frilled bikini"],
+["サイドタイ","side-tie bikini bottom"],["競泳水着","competition swimsuit"],
+["ラッシュガード","rash guard"],["パレオ","sarong"],
+["赤ビキニ","red bikini"],["青ビキニ","blue bikini"],
+["スポーツブラ","sports bra"],["パジャマ","pajamas"],
+["ネグリジェ","nightgown"],["ベビードール","babydoll"]]},
 {n:"レッグウェア・靴",i:"🧦",ch:true,tags:[
 ["ニーハイ","thighhighs"],["白ニーハイ","white thighhighs"],
 ["黒ニーハイ","black thighhighs"],["ハイソ","kneehighs"],
 ["タイツ","pantyhose"],["黒タイツ","black pantyhose"],
 ["網タイツ","fishnet pantyhose"],["ブーツ","boots"],
 ["ハイヒール","high heels"],["スニーカー","sneakers"],
-["ローファー","loafers"],["裸足","barefoot"]]},
+["ローファー","loafers"],["裸足","barefoot"],
+["縞ニーソ","striped thighhighs"],["ガーターストラップ","garter straps"],
+["ルーズソックス","loose socks"],["くるぶしソックス","ankle socks"],
+["足袋","tabi"],["下駄","geta"],["サンダル","sandals"],
+["メリージェーン","mary janes"],["厚底","platform footwear"],
+["太ももストラップ","thigh strap"]]},
 {n:"アクセサリー",i:"💎",ch:true,tags:[
 ["ネックレス","necklace"],["チョーカー","choker"],
 ["イヤリング","earrings"],["ブレスレット","bracelet"],
@@ -274,19 +368,40 @@ const SECS=[
 ["手袋","gloves"],["黒手袋","black gloves"],
 ["指なし手袋","fingerless gloves"],["肘手袋","elbow gloves"],
 ["ネクタイ","necktie"],["リボン","ribbon"],
-["首輪","collar"],["ベルト","belt"]]},
+["首輪","collar"],["ベルト","belt"],
+["ブローチ","brooch"],["鈴","neck bell"],["絆創膏","bandaid"],
+["マスク","mask"],["狐面","fox mask"],["ヘッドホン","headphones"],
+["耳当て","earmuffs"],["腕時計","watch"],["アンクレット","anklet"],
+["腕章","armband"],["リュック","backpack"],
+["ショルダーバッグ","shoulder bag"],["日傘","parasol"]]},
+{n:"ネイル・装飾",i:"💅",ch:true,tags:[
+["赤ネイル","red nails"],["ピンクネイル","pink nails"],
+["黒ネイル","black nails"],["白ネイル","white nails"],
+["紫ネイル","purple nails"],["青ネイル","blue nails"],
+["フットネイル","toenail polish"],["ボディペイント","body paint"]]},
 {n:"非人間パーツ",i:"🐾",ch:true,tags:[
 ["猫耳","cat ears"],["犬耳","dog ears"],["狐耳","fox ears"],
 ["兎耳","rabbit ears"],["エルフ耳","elf ears"],
 ["翼","wings"],["天使翼","angel wings"],["悪魔翼","demon wings"],
 ["天使の輪","halo"],["角","horns"],["悪魔角","demon horns"],
 ["猫尻尾","cat tail"],["狐尻尾","fox tail"],["尻尾","tail"],
-["牙","fangs"]]},
+["牙","fangs"],
+["狼耳","wolf ears"],["狼尻尾","wolf tail"],
+["竜の角","dragon horns"],["竜の尻尾","dragon tail"],
+["九尾","multiple tails"],["人魚","mermaid"],
+["妖精の羽","fairy wings"],["蝶の羽","butterfly wings"],
+["蝙蝠の羽","bat wings"],["機械部品","mechanical parts"],
+["アンドロイド","android"],["モンスター娘","monster girl"]]},
 {n:"柄・質感",i:"🔲",ch:true,tags:[
 ["チェック","plaid"],["ストライプ","striped"],["ドット","polka dot"],
 ["花柄","floral print"],["レース","lace"],["フリル","frills"],
 ["透け","see-through"],["光沢","shiny"],["濡れ服","wet clothes"],
-["破れ服","torn clothes"]]},
+["破れ服","torn clothes"],["迷彩","camouflage"],
+["アーガイル","argyle"],["ギンガム","gingham"],
+["千鳥格子","houndstooth"],["豹柄","leopard print"],
+["星柄","star print"],["ハート柄","heart print"],
+["グラデ服","gradient clothes"],["レザー","leather"],
+["ファートリム","fur trim"],["スパンコール","sequins"],["ラメ","glitter"]]},
 ]},
 {section:"nsfw",label:"🔞 NSFW",cats:[
 {n:"状態・露出",i:"🔥",ch:true,tags:[
@@ -299,7 +414,13 @@ const SECS=[
 ["乳首","nipples"],["尻","ass"],["尻フォーカス","ass focus"],
 ["パンツずらし","panties aside"],["ブラずらし","bra lift"],
 ["はだけ","open clothes"],["前開き","open shirt"],
-["脱ぎかけ","undressing"],["入浴","bathing"],["シャワー","showering"]]},
+["脱ぎかけ","undressing"],["入浴","bathing"],["シャワー","showering"],
+["ボトムレス","bottomless"],["胸はだけ","breasts out"],
+["片胸ぽろり","one breast out"],["乳首チラ","nipple slip"],
+["胸チラ","downblouse"],["食い込み","cameltoe"],
+["胸隠し","covering breasts"],["股間隠し","covering crotch"],
+["服の下に手","hand under clothes"],["服引っ張り","clothes pull"],
+["肩紐ずれ","strap slip"],["片脚パンティ","panties around one leg"]]},
 {n:"表現・シチュ",i:"💋",ch:true,tags:[
 ["全身赤面","full-body blush"],["汗","sweat"],["汗まみれ","sweaty"],
 ["びしょ濡れ","soaking wet"],["泡","soap bubbles"],
@@ -307,12 +428,32 @@ const SECS=[
 ["アヘ顔","ahegao"],["涎","drool"],
 ["ベッド","on bed"],["仰向けベッド","lying on bed, on back"],
 ["M字開脚","spread legs"],["四つん這い","all fours"],
-["跨り","straddling"]]},
-{n:"ネイル・装飾",i:"💅",ch:true,tags:[
-["赤ネイル","red nails"],["ピンクネイル","pink nails"],
-["黒ネイル","black nails"],["白ネイル","white nails"],
-["紫ネイル","purple nails"],["青ネイル","blue nails"],
-["フットネイル","toenail polish"],["ボディペイント","body paint"]]},
+["跨り","straddling"],["荒い息","heavy breathing"],
+["震え","trembling"],["ベッドルームアイズ","bedroom eyes"],
+["尻突き出し","top-down bottom-up"],["前屈み","bent over"],
+["反り背","arched back"],["女の子座り","wariza"],
+["脚上げ","legs up"],["舌なめずり","licking lips"],
+["湯気肌","steaming body"]]},
+{n:"露出コス",i:"🎀",ch:true,tags:[
+["マイクロビキニ","micro bikini"],["逆バニー","reverse bunny suit"],
+["スリングショット","slingshot swimsuit"],
+["童貞を殺すセーター","virgin killer sweater"],
+["裸リボン","naked ribbon"],["ニプレス","pasties"],
+["シースルー下着","see-through lingerie"],["マイクロミニ","microskirt"],
+["紐パン","side-tie panties"],["ローライズ","lowleg panties"]]},
+{n:"カップル・行為",i:"💕",ch:true,tags:[
+["抱擁","hug"],["背後から抱擁","hug from behind"],
+["キス","kiss"],["フレンチキス","french kiss"],
+["手繋ぎ","holding hands"],["膝枕","lap pillow"],
+["壁ドン","kabedon"],["暗示的","implied sex"],["事後","after sex"],
+["正常位","missionary"],["騎乗位","girl on top"],
+["後背位","sex from behind"],["胸を掴む","grabbing another's breast"]]},
+{n:"局部・修正",i:"🔍",ch:true,tags:[
+["無修正","uncensored"],["モザイク","mosaic censoring"],
+["黒海苔","bar censor"],["都合よい遮蔽","convenient censoring"],
+["髪隠し","hair censor"],["湯気隠し","steam censor"],
+["女性器","pussy"],["男性器","penis"],
+["精液","cum"],["体に精液","cum on body"]]},
 ]}
 ];
 
@@ -326,20 +467,27 @@ const NEG_PRE={
 };
 
 // ── State ──
-let sel={},wts={},openCats={},nsfw=false,model="full";
-let custom="",charName="",charCustom="",customNeg="";
-let negPre=["低品質除外"];
+const ST=JSON.parse(localStorage.getItem("nai-state")||"{}");
+let sel=ST.sel||{},wts=ST.wts||{},openCats={},nsfw=!!ST.nsfw,model=ST.model||"full";
+let custom=ST.custom||"",charName=ST.charName||"",charCustom=ST.charCustom||"",customNeg=ST.customNeg||"";
+let negPre=ST.negPre||["低品質除外"];
 let showSearch=false,search="",showAddSet=false;
 let customSets=JSON.parse(localStorage.getItem("nai-sets")||"[]");
 let copied=null,copiedTimer=null;
 
+// タグ→日本語ラベルの逆引き
+const LBL={};
+SECS.forEach(s=>s.cats.forEach(c=>c.tags.forEach(([l,t])=>{if(!LBL[t])LBL[t]=l})));
+
 function saveSets(){localStorage.setItem("nai-sets",JSON.stringify(customSets))}
+function saveState(){localStorage.setItem("nai-state",JSON.stringify({sel,wts,nsfw,model,custom,charName,charCustom,customNeg,negPre}))}
+let updateOut=()=>{};
 function aw(t,w){if(w===0)return t;if(w>0)return "{".repeat(w)+t+"}".repeat(w);return "[".repeat(-w)+t+"]".repeat(-w)}
 
 function buildMain(){
   const p=[];
   if(nsfw)p.push("NSFW");
-  SECS.forEach(s=>s.cats.forEach(c=>{if(c.ch)return;c.tags.forEach(([,t])=>{if(sel[t])p.push(aw(t,wts[t]||0))})}));
+  SECS.forEach(s=>{if(s.section==="nsfw"&&!nsfw)return;s.cats.forEach(c=>{if(c.ch)return;c.tags.forEach(([,t])=>{if(sel[t])p.push(aw(t,wts[t]||0))})})});
   customSets.forEach(cs=>{if(cs.ch)return;cs.tags.forEach(t=>{if(sel[t])p.push(aw(t,wts[t]||0))})});
   if(custom.trim())p.push(custom.trim());
   const q=model==="curated"?"location, masterpiece, no text, rating:general":"masterpiece, best quality, very aesthetic, absurdres";
@@ -349,7 +497,7 @@ function buildMain(){
 function buildChar(){
   const p=[];
   if(charName.trim())p.push("{{{{"+charName.trim()+"}}}}");
-  SECS.forEach(s=>s.cats.forEach(c=>{if(!c.ch)return;c.tags.forEach(([,t])=>{if(sel[t])p.push(aw(t,wts[t]||0))})}));
+  SECS.forEach(s=>{if(s.section==="nsfw"&&!nsfw)return;s.cats.forEach(c=>{if(!c.ch)return;c.tags.forEach(([,t])=>{if(sel[t])p.push(aw(t,wts[t]||0))})})});
   customSets.forEach(cs=>{if(!cs.ch)return;cs.tags.forEach(t=>{if(sel[t])p.push(aw(t,wts[t]||0))})});
   if(charCustom.trim())p.push(charCustom.trim());
   return p.join(", ");
@@ -361,7 +509,10 @@ function buildNeg(){
 }
 
 function cp(text,label){
-  navigator.clipboard.writeText(text).then(()=>{copied=label;render();clearTimeout(copiedTimer);copiedTimer=setTimeout(()=>{copied=null;render()},1500)});
+  if(!text)return;
+  const done=()=>{copied=label;render();clearTimeout(copiedTimer);copiedTimer=setTimeout(()=>{copied=null;render()},1500)};
+  const fb=()=>{const ta=document.createElement("textarea");ta.value=text;ta.style.cssText="position:fixed;top:0;left:0;opacity:0";document.body.appendChild(ta);ta.focus();ta.select();try{document.execCommand("copy")}catch(e){}document.body.removeChild(ta);done()};
+  if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(text).then(done).catch(fb)}else{fb()}
 }
 
 function h(tag,...ch){const e=document.createElement(tag);for(const c of ch){if(typeof c==="string")e.appendChild(document.createTextNode(c));else if(c)e.appendChild(c)}return e}
@@ -389,6 +540,7 @@ function tagBtn(label,tag,isDel,setId){
 }
 
 function render(){
+  const sy=window.scrollY;
   const app=document.getElementById("app");
   app.innerHTML="";
 
@@ -415,16 +567,17 @@ function render(){
   // Search
   ctrl.appendChild(ha("button",{class:"ctrl-btn",style:{border:"1px solid #2a2a45",background:showSearch?"#6366f1":"transparent",color:showSearch?"#fff":"#8888a8"},onClick:()=>{showSearch=!showSearch;render()}},"🔍"));
   ctrl.appendChild(ha("span",{style:{fontSize:"12px",color:"#8888a8"}},Object.keys(sel).length+"選択"));
-  ctrl.appendChild(ha("button",{class:"ctrl-btn",style:{border:"1px solid #ef4444",background:"transparent",color:"#ef4444"},onClick:()=>{sel={};wts={};custom="";charName="";charCustom="";customNeg="";negPre=["低品質除外"];search="";render()}},"リセット"));
+  ctrl.appendChild(ha("button",{class:"ctrl-btn",style:{border:"1px solid #ef4444",background:"transparent",color:"#ef4444"},onClick:()=>{if(!confirm("すべての選択をリセットする？"))return;sel={};wts={};custom="";charName="";charCustom="";customNeg="";negPre=["低品質除外"];search="";render()}},"リセット"));
   app.appendChild(ctrl);
 
   // Search
   if(showSearch){
     const sd=ha("div",{style:{marginBottom:"8px"}});
     const si=ha("input",{type:"text",placeholder:"タグ検索（日本語/英語）...",value:search,style:{borderColor:"#6366f1"}});
-    si.addEventListener("input",()=>{search=si.value;render()});
-    sd.appendChild(si);
-    if(search.trim()){
+    const resWrap=h("div");
+    const renderResults=()=>{
+      resWrap.innerHTML="";
+      if(!search.trim())return;
       const q=search.toLowerCase();
       const rd=ha("div",{style:{background:"#1a1a2e",borderRadius:"10px",border:"1px solid #2a2a45",padding:"8px",marginTop:"4px",maxHeight:"220px",overflowY:"auto",WebkitOverflowScrolling:"touch"}});
       let found=false;
@@ -433,8 +586,12 @@ function render(){
         if(mt.length>0){found=true;const cd=h("div");cd.appendChild(ha("span",{style:{fontSize:"11px",color:"#8888a8"}},c.i+" "+c.n+" "+(c.ch?"→キャラ":"→メイン")));const td=h("div");mt.forEach(([l,t])=>td.appendChild(tagBtn(l,t)));cd.appendChild(td);rd.appendChild(cd)}
       })});
       if(!found)rd.appendChild(ha("p",{style:{color:"#8888a8",fontSize:"13px"}},"該当なし"));
-      sd.appendChild(rd);
-    }
+      resWrap.appendChild(rd);
+    };
+    si.addEventListener("input",()=>{search=si.value;renderResults()});
+    sd.appendChild(si);
+    sd.appendChild(resWrap);
+    renderResults();
     app.appendChild(sd);
   }
 
@@ -528,7 +685,7 @@ function render(){
   const cti=ha("div",{style:{marginBottom:"6px"}});
   cti.appendChild(ha("label",{style:{fontSize:"12px",color:"#6ee7b7",display:"block",marginBottom:"3px"}},"✏️ カスタム → メイン"));
   const ci=ha("input",{type:"text",placeholder:"カンマ区切りで自由入力...",value:custom});
-  ci.addEventListener("input",()=>{custom=ci.value});
+  ci.addEventListener("input",()=>{custom=ci.value;saveState();updateOut()});
   cti.appendChild(ci);
   app.appendChild(cti);
 
@@ -536,10 +693,10 @@ function render(){
   const chCard=ha("div",{class:"card"});
   chCard.appendChild(ha("div",{style:{fontSize:"13px",fontWeight:"600",marginBottom:"6px",color:"#818cf8"}},"🎭 キャラクター設定"));
   const cni=ha("input",{type:"text",placeholder:"キャラ名（例: hatsune miku）→ {{{{名前}}}} 自動変換",value:charName,style:{marginBottom:"6px"}});
-  cni.addEventListener("input",()=>{charName=cni.value});
+  cni.addEventListener("input",()=>{charName=cni.value;saveState();updateOut()});
   chCard.appendChild(cni);
   const cci=ha("textarea",{rows:"2",placeholder:"カスタムキャラタグ（カンマ区切り）",value:charCustom});
-  cci.addEventListener("input",()=>{charCustom=cci.value});
+  cci.addEventListener("input",()=>{charCustom=cci.value;saveState();updateOut()});
   chCard.appendChild(cci);
   app.appendChild(chCard);
 
@@ -552,37 +709,65 @@ function render(){
   });
   negCard.appendChild(nr);
   const cng=ha("input",{type:"text",placeholder:"追加ネガティブ...",value:customNeg});
-  cng.addEventListener("input",()=>{customNeg=cng.value});
+  cng.addEventListener("input",()=>{customNeg=cng.value;saveState();updateOut()});
   negCard.appendChild(cng);
   app.appendChild(negCard);
 
   // Output
-  const mp=buildMain(),chp=buildChar(),np=buildNeg();
-  const outCard=ha("div",{class:"card"});
+  const outCard=ha("div",{class:"card",id:"outcard"});
   const oHead=ha("div",{class:"row",style:{justifyContent:"space-between",marginBottom:"10px"}});
   oHead.appendChild(ha("span",{style:{fontSize:"14px",fontWeight:"600"}},"📋 出力"));
   oHead.appendChild(ha("button",{class:"ctrl-btn",style:{background:copied==="all"?"#22c55e":"#6366f1",color:"#fff",fontWeight:"600",padding:"6px 16px",minHeight:"32px",borderRadius:"8px"},onClick:()=>{
-    const s=[];
-    if(mp)s.push("【プロンプト】\n"+mp);
-    if(chp)s.push("【キャラクタープロンプト】\n"+chp);
-    if(np)s.push("【ネガティブプロンプト】\n"+np);
+    const s=[],m=buildMain(),c=buildChar(),n=buildNeg();
+    if(m)s.push("【プロンプト】\n"+m);
+    if(c)s.push("【キャラクタープロンプト】\n"+c);
+    if(n)s.push("【ネガティブプロンプト】\n"+n);
     cp(s.join("\n\n"),"all");
   }},copied==="all"?"✓ コピー済み！":"全てコピー"));
   outCard.appendChild(oHead);
 
-  [{l:"プロンプト",t:mp,k:"main",c:"#6ee7b7",p:"シーン系タグを選択..."},
-   {l:"キャラクタープロンプト",t:chp,k:"char",c:"#818cf8",p:"キャラ外見タグを選択..."},
-   {l:"ネガティブプロンプト",t:np,k:"neg",c:"#f87171",p:"プリセット選択..."}].forEach(({l,t,k,c,p})=>{
+  // 選択中タグ（タップで解除）
+  const selKeys=Object.keys(sel).filter(t=>{
+    if(nsfw)return true;
+    const nsec=SECS.find(s=>s.section==="nsfw");
+    return !nsec.cats.some(c=>c.tags.some(([,tt])=>tt===t))||customSets.some(cs=>cs.tags.includes(t));
+  });
+  if(selKeys.length>0){
+    const chips=ha("div",{style:{display:"flex",flexWrap:"wrap",gap:"4px",marginBottom:"10px",paddingBottom:"10px",borderBottom:"1px solid #2a2a45"}});
+    selKeys.forEach(t=>{
+      const w=wts[t]||0;
+      const c=ha("button",{class:"chip",title:t+"（タップで解除）",onClick:()=>{delete sel[t];delete wts[t];render()}});
+      c.innerHTML=(LBL[t]||t)+(w!==0?' <b>'+(w>0?"+"+w:w)+'</b>':'')+' <span style="color:#8888a8">×</span>';
+      chips.appendChild(c);
+    });
+    outCard.appendChild(chips);
+  }
+
+  const outBoxes={};
+  [{l:"プロンプト",b:buildMain,k:"main",c:"#6ee7b7",p:"シーン系タグを選択..."},
+   {l:"キャラクタープロンプト",b:buildChar,k:"char",c:"#818cf8",p:"キャラ外見タグを選択..."},
+   {l:"ネガティブプロンプト",b:buildNeg,k:"neg",c:"#f87171",p:"プリセット選択..."}].forEach(({l,b,k,c,p})=>{
     const d=ha("div",{style:{marginBottom:k==="neg"?"0":"10px"}});
     const r=ha("div",{class:"row",style:{justifyContent:"space-between",marginBottom:"3px"}});
     r.appendChild(ha("span",{style:{fontSize:"12px",color:c,fontWeight:"600"}},l));
-    r.appendChild(ha("button",{class:"ctrl-btn",style:{padding:"3px 10px",border:"1px solid #2a2a45",background:copied===k?"#22c55e":"transparent",color:copied===k?"#fff":"#8888a8",fontSize:"11px",minHeight:"26px",borderRadius:"5px"},onClick:()=>cp(t,k)},copied===k?"✓":"コピー"));
+    r.appendChild(ha("button",{class:"ctrl-btn",style:{padding:"3px 10px",border:"1px solid #2a2a45",background:copied===k?"#22c55e":"transparent",color:copied===k?"#fff":"#8888a8",fontSize:"11px",minHeight:"26px",borderRadius:"5px"},onClick:()=>cp(b(),k)},copied===k?"✓":"コピー"));
     d.appendChild(r);
+    const t=b();
     const ob=ha("div",{class:"out-box",style:{color:t?(k==="neg"?"#f87171":k==="char"?"#c4b5fd":"#e8e8f0"):"#555"}},t||p);
+    outBoxes[k]={el:ob,b,p,k};
     d.appendChild(ob);
     outCard.appendChild(d);
   });
   app.appendChild(outCard);
+
+  // テキスト入力→出力ボックス即時反映
+  updateOut=()=>{
+    Object.values(outBoxes).forEach(({el,b,p,k})=>{
+      const t=b();
+      el.textContent=t||p;
+      el.style.color=t?(k==="neg"?"#f87171":k==="char"?"#c4b5fd":"#e8e8f0"):"#555";
+    });
+  };
 
   // Tips
   const det=h("details");det.className="card";
@@ -591,6 +776,24 @@ function render(){
   tipD.innerHTML='<p style="margin:3px 0">・<b style="color:#e8e8f0">{tag}</b> = ×1.05強調 / <b style="color:#e8e8f0">{{tag}}</b> = ×1.10 / <b style="color:#e8e8f0">[tag]</b> = 弱化</p><p style="margin:3px 0">・前方タグほど優先 / 品質タグは末尾推奨</p><p style="margin:3px 0">・マルチキャラは | で区切り</p><p style="margin:3px 0">・CFG 5〜8推奨 / ステップ 28〜50</p>';
   det.appendChild(tipD);
   app.appendChild(det);
+
+  // 固定ボトムバー
+  const bar=ha("div",{class:"fbar"});
+  const nSel=Object.keys(sel).length;
+  bar.appendChild(ha("span",{style:{fontSize:"13px",color:nSel>0?"#e8e8f0":"#8888a8",fontWeight:"600"}},nSel+" 選択"));
+  bar.appendChild(ha("div",{style:{flex:"1"}}));
+  bar.appendChild(ha("button",{class:"ctrl-btn",style:{border:"1px solid #2a2a45",background:"#1a1a2e",color:"#c7d2fe",minHeight:"36px",padding:"6px 14px",borderRadius:"8px"},onClick:()=>{document.getElementById("outcard").scrollIntoView({behavior:"smooth"})}},"📋 出力へ"));
+  bar.appendChild(ha("button",{class:"ctrl-btn",style:{background:copied==="all"?"#22c55e":"#6366f1",color:"#fff",fontWeight:"600",minHeight:"36px",padding:"6px 16px",borderRadius:"8px"},onClick:()=>{
+    const s=[],m=buildMain(),c=buildChar(),n=buildNeg();
+    if(m)s.push("【プロンプト】\n"+m);
+    if(c)s.push("【キャラクタープロンプト】\n"+c);
+    if(n)s.push("【ネガティブプロンプト】\n"+n);
+    cp(s.join("\n\n"),"all");
+  }},copied==="all"?"✓ コピー済み":"全てコピー"));
+  app.appendChild(bar);
+
+  window.scrollTo(0,sy);
+  saveState();
 }
 
 render();
